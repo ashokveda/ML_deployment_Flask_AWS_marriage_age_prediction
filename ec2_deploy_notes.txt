@@ -1,0 +1,56 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf500
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Notes:  Predicing Year of Marriage - EC2 deployment \
+Create ec2 server, set appropriate security groups conf and save private key (pem)\
+Using puttygen to convert private pem key to ppk (for MAC this is not necessary)\
+\
+Login into ec2 server\
+\
+Commands:\
+python3 -V\
+\
+curl -O https://bootstrap.pypa.io/get-pip.py\
+sudo python3 get-pip.py\
+\
+sudo apt-get update\
+\
+sudo pip install flask, flask_cors, sklearn, apache2 , libapache2-mod-wsgi-py3\
+\
+Configure  /etc/apache2/sites-enabled/000-default.conf\
+\
+------- Apache Host file configuration\
+------- file: /etc/apache2/sites-enabled/000-default.conf add this below content \
+DocumentRoot /home/ubuntu/mlapp\
+WSGIDaemonProcess flaskapp threads=5 python-home=/usr/local/lib/python3.5/site-packages/ user=ubuntu\
+        WSGIScriptAlias / /home/ubuntu/mlapp/flaskapp.wsgi\
+<Directory /home/ubuntu/mlapp>\
+            WSGIProcessGroup flaskapp\
+            WSGIApplicationGroup %\{GLOBAL\}\
+            Require all granted\
+        </Directory>\
+\'97\'97\'97\'97\'97\'97\'97\
+\
+Create directory  /home/ubuntu/mlapp\
+Create file flaskapp.wsgi  at mlapp directory with content below\
+\
+----------------- file : Flaskapp.wsgi\
+import sys\
+import site\
+site.addsitedir(\'91/home/ubuntu/.local/lib/python3.5/site-packages\'92)\
+sys.path.insert(0, \'91/home/ubuntu/mlapp\'92)\
+from app import app as application\
+------------\
+\
+copy app.py and predict_model.ml files to EC2  /home/ubuntu/mlapp\
+(recommended winscp app in windows, scp command line in Mac)\
+\
+sudo apachectl restart\
+\
+On succesful deployment, below url should work and return predicted age of marriage.\
+http://<your API public ip>/predict?gender=1&caste=2&religion=2&mother_tongue=5&country=4&height_cms=176\
+}
